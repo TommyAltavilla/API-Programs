@@ -1,23 +1,17 @@
+from ast import Lambda, main
 from requests import Request, Session
+from tkinter import *
 import json
 
-while True:
-  crypto = str(input("Enter BTC, ETH, or LTC: "))
-  if crypto == "BTC":
-    cryptoid = "1"
-    crypto = "bitcoin"
-    break
-  elif crypto == "ETH":
-    cryptoid = "1027"
-    crypto = "ethereum"
-    break
-  elif crypto == "LTC":
-    cryptoid = "2"
-    crypto = "litecoin"
-    break
-    
+root = Tk()
+root.title("Live Price of Cryptocurrency")
 
-def getCryptoPrice(coin):
+e = Entry(root, width=35, borderwidth=5)
+e.grid(row=0, column=0, columnspan=3, padx=10, pady=10)
+
+def getCryptoPrice(coin, cryptoid):
+  e.delete(0, END)
+
   url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
   parameters = {
     'slug':coin,
@@ -34,9 +28,19 @@ def getCryptoPrice(coin):
   response = session.get(url, params=parameters)
   data = json.loads(response.text)
   
-  return data
+  price = data['data'][cryptoid]['quote']['USD']['price']
+
+  e.insert(0, "$" + "{:.2f}".format(price))
+  return
 
 
-price = getCryptoPrice(crypto)['data'][cryptoid]['quote']['USD']['price']
 
-print("The price of " + crypto + " is currently $" + "{:.2f}".format(price) + ".")
+b1 = Button(root, text="BTC", padx=40, pady=20, command=lambda: getCryptoPrice("bitcoin", "1"))
+b2 = Button(root, text="ETH", padx=40, pady=20, command=lambda: getCryptoPrice("ethereum", "1027"))
+b3 = Button(root, text="LTC", padx=40, pady=20, command=lambda: getCryptoPrice("litecoin", "2"))
+
+b1.grid(row=1, column=0)
+b2.grid(row=1, column=1)
+b3.grid(row=1, column=2)
+
+root.mainloop()
